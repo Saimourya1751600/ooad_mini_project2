@@ -1,0 +1,88 @@
+UrbanClap has three user types on its platforms, which are:
+
+The admin
+Service provider
+Customer
+
+The three work in the following way to make business operations possible:
+
+Service providers register on the platform, create profiles applies for approval by admin. Once admin approves service provider it will go live.
+Customers browse a home service and enter the time slot for booking
+The service provider contacts the customer one-hour before the service for further coordination
+After the service provider has completed the service they will update the service as completed, once customer accepts completion on their app the service assumes as completed.
+The service provider collects the entire payment and keeps it himself/herself. In case of online payment, payments will be transferred to service provider eod after deducting minimal gateway charges. 
+
+Also, UrbanClap does not share the personal details of customers (such as phone number and address) until one hour before the booked slot for security reasons.
+
+--------------------------------------
+Revenue Model of UrbanClap
+
+The most significant source of income for UrbanClap is its subscription charge. The company offers a subscription fee on month and year basis.
+
+Service Provider Subscription
+
+--------------------------------------
+Features to Look for in an On-Demand Services Marketplace
+
+Admin Management Features
+
+Listing Management
+Order Management
+Manage Service Providers
+User Profile Management
+Portal Management
+Notifications Management
+Subscription Management (paid by service providers)
+Payment Management (demo)
+
+
+Service Provider Features
+Registration and Login
+Profile settings
+Order Management
+
+Features for Customers
+Registration and Login
+Search
+Booking Management
+Customer Support
+Review and Rating
+
+-------------------------------------------
+
+Features required in UrbanClap:
+
+1) Login / Register
+
+2) Services Approval
+
+3) Customer Request Approval
+
+4) Advanced Notification System
+
+5) Communication System
+
+6) Payment Records
+
+7) Customer Feedback
+
+8) Dashboard System
+
+9) Manage Service Providers
+
+------------------------------------------------
+
+Here are some key tech components they might use:
+
+Mobile and Web Applications:
+- Frontend Technologies: React-native
+- Backend Technologies: spring boot (java)
+
+Database Management:
+- MySQL.
+Payment Processing:
+- just demo show.
+Geolocation Services:
+- APIs from Go-Maps for location tracking, service area mapping, and navigation.
+Communication Tools:
+- In-app messaging or notification systems for real-time communication between service providers and customers.
