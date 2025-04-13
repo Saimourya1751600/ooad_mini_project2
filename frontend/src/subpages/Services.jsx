@@ -1,42 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../styles/AdminDashboard.css';
 
-const mockServices = [
-  {
-    id: 'SRV001',
-    name: 'Plumbing',
-    category: 'Home Repair',
-    price: '₹500',
-    duration: '30 mins',
-    active: true,
-  },
-  {
-    id: 'SRV002',
-    name: 'Electrical Work',
-    category: 'Home Repair',
-    price: '₹750',
-    duration: '45 mins',
-    active: true,
-  },
-  {
-    id: 'SRV003',
-    name: 'House Cleaning',
-    category: 'Cleaning',
-    price: '₹1,200',
-    duration: '2 hrs',
-    active: false,
-  },
-  {
-    id: 'SRV004',
-    name: 'AC Repair',
-    category: 'Appliance Repair',
-    price: '₹850',
-    duration: '1 hr',
-    active: true,
-  },
-];
-
 const Services = () => {
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:8080/api/services') // Replace with your API
+      .then(response => {
+        setServices(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching services:', error);
+      });
+  }, []);
+
   return (
     <div className="section-wrapper">
       <header className="dashboard-header">
@@ -45,28 +23,26 @@ const Services = () => {
       </header>
 
       <div className="table-wrapper">
-        <table className="data-table">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>Service ID</th>
               <th>Name</th>
               <th>Category</th>
-              <th>Price</th>
-              <th>Duration</th>
-              <th>Status</th>
+              <th>Base Price (₹)</th>
+              <th>Description</th>
+              <th>Created At</th>
             </tr>
           </thead>
           <tbody>
-            {mockServices.map((service) => (
-              <tr key={service.id}>
-                <td>{service.id}</td>
+            {services.map((service) => (
+              <tr key={service.service_id}>
+                <td>{service.service_id}</td>
                 <td>{service.name}</td>
-                <td>{service.category}</td>
-                <td>{service.price}</td>
-                <td>{service.duration}</td>
-                <td style={{ color: service.active ? '#2ecc71' : '#e74c3c', fontWeight: 'bold' }}>
-                  {service.active ? 'Active' : 'Inactive'}
-                </td>
+                <td>{service.category_name || service.category_id}</td> {/* Fallback if category name isn't fetched */}
+                <td>{Number(service.base_price).toFixed(2)}</td>
+                <td>{service.description}</td>
+                <td>{new Date(service.created_at).toLocaleDateString('en-GB')}</td> {/* dd-mm-yyyy */}
               </tr>
             ))}
           </tbody>

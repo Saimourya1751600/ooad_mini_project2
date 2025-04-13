@@ -1,15 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../styles/AdminDashboard.css';
 
-const mockCustomers = [
-  { id: 1, name: 'Ananya Sharma', email: 'ananya@example.com', phone: '9876543210', joined: '2023-05-12' },
-  { id: 2, name: 'Rahul Verma', email: 'rahul@example.com', phone: '9123456780', joined: '2023-06-01' },
-  { id: 3, name: 'Meena Kumari', email: 'meena@example.com', phone: '9988776655', joined: '2023-04-22' },
-  { id: 4, name: 'Ravi Gupta', email: 'ravi@example.com', phone: '9345678123', joined: '2023-03-15' },
-  { id: 5, name: 'Neha Singh', email: 'neha@example.com', phone: '9876567890', joined: '2023-07-05' },
-];
-
 const Customers = () => {
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:8080/api/users')
+      .then(response => {
+        const users = response.data;
+        const customerList = users.filter(user => user.user_type === 'CUSTOMER');
+        setCustomers(customerList);
+      })
+      .catch(error => {
+        console.error('Error fetching customers:', error);
+      });
+  }, []);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      // Convert to ISO format (YYYY-MM-DDTHH:mm:ss)
+      const formattedDate = new Date(dateString.replace(' ', 'T')); 
+
+      if (isNaN(formattedDate)) {
+        console.error('Invalid date format:', dateString);
+        return 'N/A';
+      }
+
+      // Format date as dd-mm-yyyy
+      const day = formattedDate.getDate().toString().padStart(2, '0'); // Add leading zero if day is single digit
+      const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0'); // Add leading zero if month is single digit
+      const year = formattedDate.getFullYear();
+
+      return `${day}-${month}-${year}`; // Return date in dd-mm-yyyy format
+    } catch (err) {
+      console.error('Error formatting date:', err);
+      return 'N/A';
+    }
+  };
+
   return (
     <div className="section-wrapper">
       <header className="dashboard-header">
@@ -17,8 +47,8 @@ const Customers = () => {
         <p>List of all registered customers</p>
       </header>
 
-      <div className="table-wrapper">
-        <table className="data-table">
+      <div className="table-container">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>#</th>
@@ -29,13 +59,13 @@ const Customers = () => {
             </tr>
           </thead>
           <tbody>
-            {mockCustomers.map((customer, index) => (
-              <tr key={customer.id}>
+            {customers.map((customer, index) => (
+              <tr key={customer.userId}>
                 <td>{index + 1}</td>
                 <td>{customer.name}</td>
                 <td>{customer.email}</td>
                 <td>{customer.phone}</td>
-                <td>{customer.joined}</td>
+                <td>{formatDate(customer.createdAt)}</td>
               </tr>
             ))}
           </tbody>

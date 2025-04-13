@@ -27,8 +27,13 @@ ChartJS.register(
 const DashboardOverview = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalProviders, setTotalProviders] = useState(0);
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [confirmedBookings, setConfirmedBookings] = useState(0);
+  const [cancelledBookings, setCancelledBookings] = useState(0);
+  const [completedBookings, setCompletedBookings] = useState(0);
 
   useEffect(() => {
+    // Fetching user data (customers and providers)
     axios.get('http://localhost:8080/api/users')
       .then(response => {
         const users = response.data;
@@ -39,6 +44,24 @@ const DashboardOverview = () => {
       })
       .catch(error => {
         console.error('Error fetching users:', error);
+      });
+
+    // Fetching booking data and counting the statuses
+    axios.get('http://localhost:8080/api/bookings')
+      .then(response => {
+        const bookings = response.data;
+        setTotalBookings(bookings.length);
+
+        const confirmed = bookings.filter(booking => booking.status === 'CONFIRMED').length;
+        const cancelled = bookings.filter(booking => booking.status === 'CANCELLED').length;
+        const completed = bookings.filter(booking => booking.status === 'COMPLETED').length;
+
+        setConfirmedBookings(confirmed);
+        setCancelledBookings(cancelled);
+        setCompletedBookings(completed);
+      })
+      .catch(error => {
+        console.error('Error fetching bookings:', error);
       });
   }, []);
 
@@ -84,8 +107,23 @@ const DashboardOverview = () => {
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">📅</div>
-          <h3>Active Bookings</h3>
-          <p>89</p>
+          <h3>Total Bookings</h3>
+          <p>{totalBookings}</p>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-icon">✅</div>
+          <h3>Confirmed Bookings</h3>
+          <p>{confirmedBookings}</p>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-icon">❌</div>
+          <h3>Cancelled Bookings</h3>
+          <p>{cancelledBookings}</p>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-icon">✔️</div>
+          <h3>Completed Bookings</h3>
+          <p>{completedBookings}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">💰</div>

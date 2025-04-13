@@ -1,55 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../styles/AdminDashboard.css';
 
 const Settings = () => {
-  const [theme, setTheme] = useState('light');
-  const [adminName, setAdminName] = useState('John Doe');
-  const [email, setEmail] = useState('admin@example.com');
+  const [adminName, setAdminName] = useState('');
+  const [email, setEmail] = useState('');
 
-  const handleThemeChange = (e) => {
-    setTheme(e.target.value);
-    document.body.className = e.target.value;
-  };
+  useEffect(() => {
+    // Fetch the only admin's info from the backend
+    axios.get('http://localhost:8080/api/admin')
+      .then((response) => {
+        setAdminName(response.data.name);
+        setEmail(response.data.email);
+      })
+      .catch((error) => {
+        console.error('Error fetching admin info:', error);
+      });
+  }, []);
 
   const handleInputChange = (e) => {
-    if (e.target.name === 'adminName') setAdminName(e.target.value);
-    if (e.target.name === 'email') setEmail(e.target.value);
+    const { name, value } = e.target;
+    if (name === 'adminName') setAdminName(value);
+    if (name === 'email') setEmail(value);
+  };
+
+  const handleSave = () => {
+    axios.put('http://localhost:8080/api/admin', {
+      name: adminName,
+      email: email
+    })
+      .then(() => alert('Admin settings updated successfully!'))
+      .catch((error) => {
+        console.error('Error updating admin settings:', error);
+        alert('Failed to update admin settings');
+      });
   };
 
   return (
     <div className="section-wrapper">
       <header className="dashboard-header">
         <h1>Settings</h1>
-        <p>Customize your admin panel settings.</p>
+        <p>Update admin profile</p>
       </header>
 
       <div className="settings-container">
-        <div className="settings-section">
-          <h3>Theme</h3>
-          <div className="theme-selector">
-            <label>
-              <input
-                type="radio"
-                name="theme"
-                value="light"
-                checked={theme === 'light'}
-                onChange={handleThemeChange}
-              />
-              Light
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="theme"
-                value="dark"
-                checked={theme === 'dark'}
-                onChange={handleThemeChange}
-              />
-              Dark
-            </label>
-          </div>
-        </div>
-
         <div className="settings-section">
           <h3>Admin Information</h3>
           <div className="settings-input-group">
@@ -72,7 +66,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <button className="save-button">Save Settings</button>
+        <button className="save-button" onClick={handleSave}>Save Settings</button>
       </div>
     </div>
   );
