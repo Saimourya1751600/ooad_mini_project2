@@ -1,0 +1,79 @@
+# Urban-Connect: A One-Stop Service Booking and Management Solution
+
+## **Project Overview**
+Urban-Connect is a simplified on-demand service booking platform that connects customers with service providers. The system allows users to book services, manage orders, and communicate efficiently.
+
+---
+
+## **Project Scope**
+The system will have three types of users:
+1. **Admin**: Manages service provider approvals and platform settings.
+2. **Service Provider**: Registers, manages orders, and completes services.
+3. **Customer**: Browses services, books appointments, and provides feedback.
+
+The platform will support a web and mobile application with minimal complexity.
+
+---
+
+## **Technology Stack**
+- **Frontend**: React Native (Mobile), React.js (Web)
+- **Backend**: Spring Boot (Java)
+- **Database**: MySQL
+- **Geolocation Services**: Google Maps API (Basic Integration)
+- **Communication Tools**: Basic notification system
+- **Payment Gateway**: Demo-based transactions
+
+---
+
+## **Project Features**
+
+### **1. Admin Features**
+- Approve service providers
+- Manage user accounts
+- View bookings
+
+### **2. Service Provider Features**
+- Registration & Login
+- Profile Setup
+- Accept & Manage Orders
+- Mark Service as Completed
+
+### **3. Customer Features**
+- Registration & Login
+- Search & Book Services
+- View Booking History
+- Provide Feedback
+
+---
+
+## **3-Week Project Plan & Roadmap**
+
+### **Week 1: Setup & Core Features**
+- Initialize project and set up the database.
+- Implement user registration and login.
+- Develop the service provider approval system.
+- Enable service listing and basic booking functionality.
+
+### **Week 2: Order Processing & Notifications**
+- Implement order management for service providers.
+- Set up basic notifications for bookings.
+- Develop a simple feedback system.
+- Implement basic geolocation features for service area tracking.
+
+### **Week 3: Testing, Payment Demo & Deployment**
+- Integrate a demo payment handling system.
+- Perform basic testing and bug fixing.
+- Deploy web and mobile applications.
+- Finalize documentation and prepare for project submission.
+
+---
+
+## **Security Considerations**
+- Implement basic authentication and role-based access control.
+- Restrict access to customer details until required.
+
+---
+
+## **Conclusion**
+This project plan is structured to complete **Urban-Connect** within 3 weeks, ensuring a functional and easy-to-implement solution for a college-based mini project.
+
