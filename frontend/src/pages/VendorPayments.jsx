@@ -14,15 +14,12 @@ import {
 import '../styles/VendorPayments.css';
 
 const VendorPayments = () => {
-  const [showDropdown, setShowDropdown] = useState(false);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-
-  const toggleDropdown = () => setShowDropdown(!showDropdown);
 
   const fetchPayments = async () => {
     try {
@@ -48,29 +45,7 @@ const VendorPayments = () => {
     }
   };
 
-  const fetchVendorProfile = async () => {
-    try {
-      const userData = localStorage.getItem('user');
-      if (!userData) throw new Error('User not logged in');
-
-      const parsedUser = JSON.parse(userData);
-      const response = await fetch(`http://localhost:8080/api/users/${parsedUser.userId}`);
-      if (!response.ok) throw new Error(`Failed to fetch vendor profile: ${response.statusText}`);
-
-      const profileData = await response.json();
-      navigate('/profile-vendor', { state: { profile: profileData } });
-    } catch (err) {
-      console.error('Error fetching vendor profile:', err.message);
-      alert(`Failed to load profile information: ${err.message}. Please try again.`);
-    }
-  };
-
-  const goToDashboard = () => navigate('/vendor-dashboard');
-  const goToServices = () => navigate('/vendor-services');
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
+  const goToDashboard = () => navigate('/vendor');
 
   const formatDateTime = (date, time) => {
     if (!date || !time) return 'N/A';
@@ -106,17 +81,6 @@ const VendorPayments = () => {
     <div className="vendor-payments">
       <nav className="vendor-navbar">
         <div className="logo">Urban<span>Connect_</span></div>
-        <div className="profile-nav-wrapper" onClick={toggleDropdown}>
-          <span className="profile-link">Profile <FontAwesomeIcon icon={faChevronDown} /></span>
-          {showDropdown && (
-            <div className="dropdown-menu">
-              <button onClick={fetchVendorProfile}>Account</button>
-              <button onClick={goToServices}>Services</button>
-              <button onClick={goToDashboard}>Dashboard</button>
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          )}
-        </div>
       </nav>
 
       <div className="payments-header">

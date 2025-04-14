@@ -449,7 +449,7 @@ const BookingPage = () => {
     <div className="booking-page-container">
       <div className="booking-header">
         <h2>{category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()} Services</h2>
-        {currentUser && <p>Welcome, {currentUser.name}</p>}
+        {/* {currentUser && <p>Welcome, {currentUser.name}</p>} */}
       </div>
 
       <div className="booking-content">

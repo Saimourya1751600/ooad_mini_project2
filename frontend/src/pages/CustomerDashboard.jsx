@@ -7,6 +7,7 @@ import plumberImg from '../images/carpenter.jpg';
 import cleaningImg from '../images/cleaning.jpg';
 import beautyImg from '../images/beauty.webp';
 import otherServicesImg from '../images/otherservices.jpg';
+import sp from '../images/sp.png';
 import '../styles/CustomerDashboard.css';
 
 const CustomerDashboard = () => {
@@ -85,10 +86,10 @@ const CustomerDashboard = () => {
         <div className="hero-content">
           <h1>Welcome, Valued Customer!</h1>
           <p>Book reliable services and manage your appointments with ease.</p>
-          <button className="hero-btn" onClick={() => navigate('/booking/ELECTRICAL')}>Book a Service</button>
+          {/* <button className="hero-btn" onClick={() => navigate('/booking/ELECTRICAL')}>Book a Service</button> */}
         </div>
         <div className="hero-image">
-          <img src={cleaningImg} alt="Hero" />
+          <img src={sp} alt="Hero" />
         </div>
       </section>
 

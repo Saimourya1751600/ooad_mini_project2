@@ -25,46 +25,49 @@ ChartJS.register(
 );
 
 const DashboardOverview = () => {
-  const [totalCustomers, setTotalCustomers] = useState(0);
-  const [totalProviders, setTotalProviders] = useState(0);
-  const [totalBookings, setTotalBookings] = useState(0);
-  const [confirmedBookings, setConfirmedBookings] = useState(0);
-  const [cancelledBookings, setCancelledBookings] = useState(0);
-  const [completedBookings, setCompletedBookings] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalCustomers: 0,
+    totalProviders: 0,
+    totalBookings: 0,
+    confirmedBookings: 0,
+    cancelledBookings: 0,
+    completedBookings: 0,
+    totalServices: 0
+  });
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [revenue, setRevenue] = useState(0);
+  
+
 
   useEffect(() => {
-    // Fetching user data (customers and providers)
-    axios.get('http://localhost:8080/api/users')
-      .then(response => {
-        const users = response.data;
-        const customers = users.filter(user => user.user_type === 'CUSTOMER').length;
-        const providers = users.filter(user => user.user_type === 'SERVICEPROVIDER').length;
-        setTotalCustomers(customers);
-        setTotalProviders(providers);
+    Promise.all([
+      axios.get('http://localhost:8080/api/admin/dashboard/stats'),
+      axios.get('http://localhost:8080/api/admin/dashboard/recent-bookings?limit=10'),
+      axios.get('http://localhost:8080/api/payments')
+    ])
+      .then(([statsResponse, bookingsResponse, paymentsResponse]) => {
+        setDashboardStats(statsResponse.data);
+        setRecentBookings(bookingsResponse.data);
+  
+        const totalRevenue = paymentsResponse.data.reduce((acc, payment) => {
+          return acc + (payment.amount || 0); // fallback to 0 in case amount is null
+        }, 0);
+  
+        setRevenue(totalRevenue);
+        setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching users:', error);
-      });
-
-    // Fetching booking data and counting the statuses
-    axios.get('http://localhost:8080/api/bookings')
-      .then(response => {
-        const bookings = response.data;
-        setTotalBookings(bookings.length);
-
-        const confirmed = bookings.filter(booking => booking.status === 'CONFIRMED').length;
-        const cancelled = bookings.filter(booking => booking.status === 'CANCELLED').length;
-        const completed = bookings.filter(booking => booking.status === 'COMPLETED').length;
-
-        setConfirmedBookings(confirmed);
-        setCancelledBookings(cancelled);
-        setCompletedBookings(completed);
-      })
-      .catch(error => {
-        console.error('Error fetching bookings:', error);
+        console.error('Error fetching dashboard data:', error);
+        setError('Failed to load dashboard data. Please try again later.');
+        setLoading(false);
       });
   }, []);
+  
 
+  // Calculate revenue data based on recent bookings or use a mock
+  // In a real app, you might have a separate endpoint for revenue data
   const lineData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
@@ -78,58 +81,76 @@ const DashboardOverview = () => {
     ],
   };
 
+  // Group bookings by service type - using mock data for now
+  // In a real app, you might want to get this from an endpoint
   const barData = {
     labels: ['Plumber', 'Electrician', 'Cleaner', 'Carpenter', 'Painter'],
     datasets: [
       {
         label: 'Active Bookings',
-        data: [12, 19, 7, 15, 10],
+        data: [0, 3, 0, 0, 2],
         backgroundColor: '#27ae60',
       },
     ],
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <p>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <header className="dashboard-header">
         <h1>Dashboard Overview</h1>
+        {error && <div className="error-message">{error}</div>}
       </header>
       <section className="stats-grid">
         <div className="stat-card">
           <div className="stat-card-icon">👤</div>
           <h3>Total Customers</h3>
-          <p>{totalCustomers}</p>
+          <p>{dashboardStats.totalCustomers}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">👷‍♂️</div>
           <h3>Total Providers</h3>
-          <p>{totalProviders}</p>
+          <p>{dashboardStats.totalProviders}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">📅</div>
           <h3>Total Bookings</h3>
-          <p>{totalBookings}</p>
+          <p>{dashboardStats.totalBookings}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">✅</div>
           <h3>Confirmed Bookings</h3>
-          <p>{confirmedBookings}</p>
+          <p>{dashboardStats.confirmedBookings}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">❌</div>
           <h3>Cancelled Bookings</h3>
-          <p>{cancelledBookings}</p>
+          <p>{dashboardStats.cancelledBookings}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">✔️</div>
           <h3>Completed Bookings</h3>
-          <p>{completedBookings}</p>
+          <p>{dashboardStats.completedBookings}</p>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card-icon">🛠️</div>
+          <h3>Total Services</h3>
+          <p>{dashboardStats.totalServices}</p>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon">💰</div>
-          <h3>Monthly Revenue</h3>
-          <p>₹12,340</p>
+          <h3>Revenue Collected</h3>
+          <p>₹{revenue.toLocaleString('en-IN')}</p>
         </div>
+
       </section>
 
       <section className="charts-grid">
@@ -144,6 +165,17 @@ const DashboardOverview = () => {
       </section>
     </>
   );
+};
+
+// Helper function for status colors
+const getStatusColor = (status) => {
+  const statusColors = {
+    CONFIRMED: '#2ecc71',
+    CANCELLED: '#e74c3c',
+    COMPLETED: '#3498db',
+    PENDING: '#f39c12'
+  };
+  return statusColors[status] || '#777';
 };
 
 export default DashboardOverview;

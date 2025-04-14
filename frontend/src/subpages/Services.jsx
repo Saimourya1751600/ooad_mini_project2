@@ -6,7 +6,7 @@ const Services = () => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/services') // Replace with your API
+    axios.get('http://localhost:8080/api/services')
       .then(response => {
         setServices(response.data);
       })
@@ -15,11 +15,12 @@ const Services = () => {
       });
   }, []);
 
+  const sortedServices = [...services].sort((a, b) => a.service_id - b.service_id);
+
   return (
     <div className="section-wrapper">
       <header className="dashboard-header">
         <h1>Services</h1>
-        <p>Manage and view available services</p>
       </header>
 
       <div className="table-wrapper">
@@ -31,18 +32,16 @@ const Services = () => {
               <th>Category</th>
               <th>Base Price (₹)</th>
               <th>Description</th>
-              <th>Created At</th>
             </tr>
           </thead>
           <tbody>
-            {services.map((service) => (
+            {sortedServices.map((service) => (
               <tr key={service.service_id}>
                 <td>{service.service_id}</td>
                 <td>{service.name}</td>
-                <td>{service.category_name || service.category_id}</td> {/* Fallback if category name isn't fetched */}
+                <td>{service.category_name || service.category_id}</td>
                 <td>{Number(service.base_price).toFixed(2)}</td>
                 <td>{service.description}</td>
-                <td>{new Date(service.created_at).toLocaleDateString('en-GB')}</td> {/* dd-mm-yyyy */}
               </tr>
             ))}
           </tbody>

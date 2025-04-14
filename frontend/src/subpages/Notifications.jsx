@@ -1,34 +1,39 @@
-import React from 'react';
-import '../styles/AdminDashboard.css';
-
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'Booking',
-    message: 'New booking received from user Ramesh.',
-    timestamp: 'Just now',
-  },
-  {
-    id: 2,
-    type: 'Feedback',
-    message: 'New feedback submitted for Electrician service.',
-    timestamp: '10 mins ago',
-  },
-  {
-    id: 3,
-    type: 'Payment',
-    message: 'Payment of ₹750 received from booking #BKG1254.',
-    timestamp: '1 hour ago',
-  },
-  {
-    id: 4,
-    type: 'Alert',
-    message: 'Service provider Ajay Kumar has updated profile.',
-    timestamp: 'Yesterday',
-  },
-];
+import React, { useEffect, useRef, useState } from 'react';
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 
 const Notifications = () => {
+  const [notifications, setNotifications] = useState([]);
+  const stompClient = useRef(null);
+
+  useEffect(() => {
+    const socket = new SockJS('http://localhost:8080/ws');
+    stompClient.current = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log('Connected to WebSocket');
+        stompClient.current.subscribe('/topic/notifications', (message) => {
+          const newNotification = JSON.parse(message.body);
+          setNotifications((prev) => [newNotification, ...prev]);
+        });
+      },
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+      },
+    });
+
+    stompClient.current.activate();
+
+    return () => {
+      if (stompClient.current) {
+        stompClient.current.deactivate();
+        console.log('WebSocket disconnected');
+      }
+    };
+  }, []);
+
   return (
     <div className="section-wrapper">
       <header className="dashboard-header">
@@ -37,8 +42,8 @@ const Notifications = () => {
       </header>
 
       <div className="notifications-list">
-        {mockNotifications.map((notif) => (
-          <div className="notification-card" key={notif.id}>
+        {notifications.map((notif, index) => (
+          <div className="notification-card" key={index}>
             <div className="notification-type">{notif.type}</div>
             <div className="notification-message">{notif.message}</div>
             <div className="notification-time">{notif.timestamp}</div>

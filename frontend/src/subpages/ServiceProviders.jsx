@@ -1,77 +1,203 @@
-// src/components/ServiceProviders.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../styles/AdminDashboard.css';
 
 const ServiceProviders = () => {
   const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [serviceFilter, setServiceFilter] = useState('');
+  const [serviceTypes, setServiceTypes] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:8080/api/services')
+      .then((response) => {
+        const services = Array.isArray(response.data) ? response.data : [];
+        const categories = [...new Set(services.map((service) => service.category_name))]
+          .filter((name) => name)
+          .map((name) => ({
+            id: name,
+            name: name,
+          }));
+        setServiceTypes(categories);
+      })
+      .catch((error) => {
+        console.error('Error fetching service types:', error);
+        setServiceTypes([]);
+      });
+
+    fetchProviders();
+  }, [page, pageSize, searchTerm, serviceFilter]);
 
   const fetchProviders = () => {
-    axios.get('http://localhost:8080/api/service-providers')
-      .then(response => {
-        setProviders(response.data);
+    setLoading(true);
+    axios
+      .get(
+        `http://localhost:8080/api/users?type=SERVICEPROVIDER&page=${page}&size=${pageSize}&search=${encodeURIComponent(
+          searchTerm
+        )}&serviceType=${encodeURIComponent(serviceFilter)}`
+      )
+      .then((response) => {
+        const { content, totalPages } = response.data;
+        setProviders(content || []);
+        setTotalPages(totalPages || 1);
+        setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching service providers:', error);
+        setError('Failed to load service providers. Please check the server and try again.');
+        setProviders([]);
+        setTotalPages(1);
+        setLoading(false);
       });
   };
 
-  useEffect(() => {
-    fetchProviders();
-  }, []);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const formattedDate = new Date(dateString);
+      if (isNaN(formattedDate)) return 'N/A';
+      const day = formattedDate.getDate().toString().padStart(2, '0');
+      const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = formattedDate.getFullYear();
+      return `${day}-${month}-${year}`;
+    } catch (err) {
+      console.error('Error formatting date:', err);
+      return 'N/A';
+    }
+  };
 
-  const updateStatus = (providerId, newStatus) => {
-    axios.post(`http://localhost:8080/api/service-providers/${providerId}/status`, { status: newStatus })
-      .then(() => {
-        fetchProviders(); // Refresh list after update
-      })
-      .catch(error => {
-        console.error('Error updating status:', error);
-      });
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setPage(0);
+  };
+
+  const handleServiceFilterChange = (e) => {
+    setServiceFilter(e.target.value);
+    setPage(0);
   };
 
   return (
-    <div className="section-wrapper">
-      <h1>Service Providers</h1>
-      <p>Manage all registered service providers here.</p>
-      <table className="table-auto w-full mt-6 border">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="px-4 py-2">Name</th>
-            <th className="px-4 py-2">Email</th>
-            <th className="px-4 py-2">Phone</th>
-            <th className="px-4 py-2">Address</th>
-            <th className="px-4 py-2">Joined</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {providers.map(provider => (
-            <tr key={provider.provider_id} className="border-t">
-              <td className="px-4 py-2">{provider.name}</td>
-              <td className="px-4 py-2">{provider.email}</td>
-              <td className="px-4 py-2">{provider.phone}</td>
-              <td className="px-4 py-2">{provider.address}</td>
-              <td className="px-4 py-2">{new Date(provider.created_at).toLocaleDateString()}</td>
-              <td className="px-4 py-2">{provider.approval_status}</td>
-              <td className="px-4 py-2 space-x-2">
-                <button
-                  onClick={() => updateStatus(provider.provider_id, 'APPROVED')}
-                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => updateStatus(provider.provider_id, 'REJECTED')}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                >
-                  Reject
-                </button>
-              </td>
+    <div className="admin-section">
+      <div className="section-header">
+        <h2>Service Providers</h2>
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="controls-container">
+        <form onSubmit={handleSearch} className="search-form">
+          <input
+            type="text"
+            placeholder="Search by name or email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button type="submit" className="search-btn">Search</button>
+        </form>
+
+        <div className="filter-group">
+          <label htmlFor="serviceFilter">Filter by Service:</label>
+          <select
+            id="serviceFilter"
+            value={serviceFilter}
+            onChange={handleServiceFilterChange}
+            className="filter-select"
+          >
+            <option value="">All Services</option>
+            {serviceTypes.map((type) => (
+              <option key={type.id} value={type.name}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="page-size-group">
+          <label htmlFor="pageSize">Items per page:</label>
+          <select
+            id="pageSize"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(parseInt(e.target.value));
+              setPage(0);
+            }}
+            className="page-size-select"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="data-table">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Service Type</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Joined On</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {providers.map((provider, index) => {
+              const randomServiceType =
+                serviceTypes.length > 0
+                  ? serviceTypes[Math.floor(Math.random() * serviceTypes.length)].name
+                  : 'General';
+
+              return (
+                <tr key={provider.userId || index}>
+                  <td>{page * pageSize + index + 1}</td>
+                  <td>{provider.name || 'N/A'}</td>
+                  <td>{randomServiceType}</td>
+                  <td>{provider.email || 'N/A'}</td>
+                  <td>{provider.phone || 'N/A'}</td>
+                  <td>{formatDate(provider.createdAt)}</td>
+                  <td>
+                    <button className="action-btn view-btn" title="View Details">👁️</button>
+                    <button className="action-btn bookings-btn" title="View Bookings">📅</button>
+                    <button className="action-btn services-btn" title="View Services">🛠️</button>
+                  </td>
+                </tr>
+              );
+            })}
+            {providers.length === 0 && !loading && (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  No service providers found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="pagination-controls">
+          <button onClick={() => handlePageChange(0)} disabled={page === 0} className="pagination-btn">First</button>
+          <button onClick={() => handlePageChange(page - 1)} disabled={page === 0} className="pagination-btn">Previous</button>
+          <span className="page-indicator">Page {page + 1} of {totalPages}</span>
+          <button onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages - 1} className="pagination-btn">Next</button>
+          <button onClick={() => handlePageChange(totalPages - 1)} disabled={page >= totalPages - 1} className="pagination-btn">Last</button>
+        </div>
+      )}
     </div>
   );
 };

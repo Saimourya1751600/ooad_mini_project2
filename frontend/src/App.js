@@ -15,6 +15,8 @@ import MyBookings from './pages/MyBookings';
 import ChatComponent from './pages/ChatComponent';
 import VendorChatComponent from './pages/VendorChatComponent';
 import VendorPayments from './pages/VendorPayments';
+import EditProfile from './pages/EditProfile';
+
 
 
 import Profile from './pages/Profile';
@@ -37,6 +39,7 @@ function AppWrapper() {
         <Route path="/vendor" element={<VendorDashboard />} />
         <Route path="/waiting" element={<WaitingPage />} />
         <Route path="/profile" element={<Profile/>} />
+        <Route path="/edit-profile" element={<EditProfile/>}/>
         <Route path="/profile-vendor" element={<ProfileVendor/>} />
         <Route path="/my-bookings" element={<MyBookings/>} />
         <Route path="/ChatComponent" element={<ChatComponent/>} />

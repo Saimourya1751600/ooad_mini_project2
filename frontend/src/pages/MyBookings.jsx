@@ -125,23 +125,43 @@ const MyBookings = () => {
   };
 
   const formatTime = (timeString) => {
-    let formattedTime;
-    if (timeString.includes('T')) {
-      formattedTime = new Date(timeString).toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } else {
-      const [hours, minutes] = timeString.split(':');
-      const date = new Date();
-      date.setHours(parseInt(hours, 10));
-      date.setMinutes(parseInt(minutes, 10));
-      formattedTime = date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+    // Handle null or undefined input
+    if (!timeString) {
+      return 'N/A';
     }
-    return formattedTime;
+
+    try {
+      // Check if timeString is an ISO datetime (contains 'T')
+      if (typeof timeString === 'string' && timeString.includes('T')) {
+        return new Date(timeString).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      // Handle time strings (HH:mm:ss or HH:mm)
+      if (typeof timeString === 'string') {
+        // Remove seconds if present (convert HH:mm:ss to HH:mm)
+        const timeParts = timeString.split(':');
+        if (timeParts.length >= 2) {
+          const hours = parseInt(timeParts[0], 10);
+          const minutes = parseInt(timeParts[1], 10);
+          const date = new Date();
+          date.setHours(hours);
+          date.setMinutes(minutes);
+          return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        }
+      }
+
+      // Fallback for unexpected formats
+      return 'Invalid Time';
+    } catch (error) {
+      console.error('Error formatting time:', timeString, error);
+      return 'Invalid Time';
+    }
   };
 
   const getFilteredAndSortedBookings = (bookingList) => {
