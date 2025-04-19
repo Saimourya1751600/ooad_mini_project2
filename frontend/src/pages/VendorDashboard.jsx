@@ -172,7 +172,7 @@ const VendorDashboard = () => {
           <h2>Welcome, Service Provider!</h2>
           <p>Manage your services, view bookings, and keep your profile updated.</p>
         </div>
-        <img src="/service-image.png" alt="Service Illustration" className="vendor-hero-img" />
+        <img src="./images/sp.png" alt="Service Illustration" className="vendor-hero-img" />
       </header>
 
       <section className="bookings-container">

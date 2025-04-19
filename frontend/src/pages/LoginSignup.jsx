@@ -95,13 +95,13 @@ const LoginSignup = () => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-  
+
     const apiUrl = isSignup
       ? 'http://localhost:8080/auth/register'
       : isAdminLogin
       ? 'http://localhost:8080/api/admin/login'
       : 'http://localhost:8080/auth/login';
-  
+
     const payload = isSignup
       ? {
           name: formData.name,
@@ -117,7 +117,7 @@ const LoginSignup = () => {
           email: formData.email,
           password: formData.password,
         };
-  
+
     try {
       const response = await axios.post(apiUrl, payload);
       if (isSignup) {
@@ -136,7 +136,7 @@ const LoginSignup = () => {
         setLoading(false);
         return;
       }
-  
+
       const {
         message,
         name,
@@ -151,15 +151,7 @@ const LoginSignup = () => {
         price,
         approvalStatus,
       } = response.data;
-  
-      // Invalid user check (if user doesn't exist or is not approved)
-      if (response.status !== 200 || !userId || approvalStatus === 'REJECTED') {
-        alert('Invalid credentials or your account is not approved.');
-        navigate('/login');  // Redirect to login page
-        setLoading(false);
-        return;
-      }
-  
+
       localStorage.setItem('user', JSON.stringify({
         userId,
         name,
@@ -175,9 +167,9 @@ const LoginSignup = () => {
       }));
       localStorage.setItem('userName', name);
       localStorage.setItem('userType', userType);
-  
+
       alert(message || 'Login successful!');
-  
+
       if (userType === 'SERVICEPROVIDER') {
         if (approvalStatus === 'PENDING') {
           navigate('/waiting');
@@ -198,7 +190,6 @@ const LoginSignup = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="auth-container">

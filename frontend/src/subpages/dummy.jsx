@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/AdminDashboard.css';
 
+
 const STATUS_OPTIONS = ['PENDING', 'APPROVED', 'REJECTED'];
 
 const ServiceProviders = () => {
@@ -19,7 +20,11 @@ const ServiceProviders = () => {
   const fetchProviders = () => {
     setLoading(true);
     axios
-      .get(`http://localhost:8080/api/admin/service-providers/applications?page=${page}&size=${pageSize}`)
+      .get(
+        `http://localhost:8080/api/users?type=SERVICEPROVIDER&page=${page}&size=${pageSize}&search=${encodeURIComponent(
+          searchTerm
+        )}&serviceType=${encodeURIComponent(serviceFilter)}`
+      )
       .then((response) => {
         const { content, totalPages } = response.data;
         setProviders(content || []);
@@ -28,7 +33,7 @@ const ServiceProviders = () => {
       })
       .catch((error) => {
         console.error('Error fetching service providers:', error);
-        setError('Failed to load service providers.');
+        setError('Failed to load service providers. Please check the server and try again.');
         setProviders([]);
         setTotalPages(1);
         setLoading(false);
@@ -48,6 +53,21 @@ const ServiceProviders = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const formattedDate = new Date(dateString);
+      if (isNaN(formattedDate)) return 'N/A';
+      const day = formattedDate.getDate().toString().padStart(2, '0');
+      const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
+      const year = formattedDate.getFullYear();
+      return `${day}-${month}-${year}`;
+    } catch (err) {
+      console.error('Error formatting date:', err);
+      return 'N/A';
+    }
+  };
+  
   return (
     <div className="admin-section">
       <div className="section-header">
@@ -65,6 +85,7 @@ const ServiceProviders = () => {
               <th>Service Types</th>
               <th>Email</th>
               <th>Phone</th>
+              <th>Joined On</th>
               <th>Status</th>
               <th>Change Status</th>
             </tr>
@@ -77,6 +98,7 @@ const ServiceProviders = () => {
                 <td>{provider.service_types || 'N/A'}</td>
                 <td>{provider.email || 'N/A'}</td>
                 <td>{provider.phone || 'N/A'}</td>
+                <td>{formatDate(provider.createdAt)}</td>
                 <td>{provider.approval_status}</td>
                 <td>
                   <select
@@ -95,7 +117,7 @@ const ServiceProviders = () => {
             ))}
             {!loading && providers.length === 0 && (
               <tr>
-                <td colSpan="7" className="no-data">
+                <td colSpan="8" className="no-data">
                   No service providers found
                 </td>
               </tr>

@@ -48,13 +48,12 @@ const HelpQueries = () => {
               <th>Query ID</th>
               <th>User Name</th>
               <th>Message</th>
-              <th>Submitted At</th>
             </tr>
           </thead>
           <tbody>
             {queries.length === 0 ? (
               <tr>
-                <td colSpan="4">No queries found.</td>
+                <td colSpan="3">No queries found.</td>
               </tr>
             ) : (
               queries.map((query) => (
@@ -62,7 +61,6 @@ const HelpQueries = () => {
                   <td>{query.queryId}</td>
                   <td>{query.userName || 'Unknown'}</td>
                   <td>{query.message}</td>
-                  <td>{query.submittedAt ? new Date(query.submittedAt).toLocaleString() : 'N/A'}</td>
                 </tr>
               ))
             )}
