@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -165,6 +166,126 @@ public class AdminController {
             return ResponseEntity.ok(recentBookings);
         } catch (Exception e) {
             System.err.println("Error fetching recent bookings: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Get all service provider applications with their approval status.
+     * Can be filtered by status: PENDING, APPROVED, REJECTED
+     */
+    @GetMapping("/service-providers/applications")
+    public ResponseEntity<?> getServiceProviderApplications(
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        try {
+            int offset = page * size;
+
+            StringBuilder queryBuilder = new StringBuilder("""
+                    SELECT u.user_id, u.name, u.email, u.phone, u.created_at,
+                           spd.specialization_document, spd.approval_status,
+                           (SELECT GROUP_CONCAT(sc.category_name) 
+                            FROM provider_availability pa
+                            JOIN service_categories sc ON pa.category_id = sc.category_id
+                            WHERE pa.provider_id = u.user_id) AS service_types
+                    FROM users u
+                    JOIN service_provider_details spd ON u.user_id = spd.provider_id
+                    WHERE u.user_type = 'SERVICEPROVIDER'
+                    """);
+
+            // Add filter by status if provided
+            if (status != null && !status.isEmpty()) {
+                queryBuilder.append(" AND spd.approval_status = ?");
+            }
+
+            queryBuilder.append(" ORDER BY u.created_at DESC LIMIT ? OFFSET ?");
+
+            List<Map<String, Object>> providers;
+            if (status != null && !status.isEmpty()) {
+                providers = jdbcTemplate.queryForList(
+                        queryBuilder.toString(),
+                        status, size, offset
+                );
+            } else {
+                providers = jdbcTemplate.queryForList(
+                        queryBuilder.toString(),
+                        size, offset
+                );
+            }
+
+            // Get total count for pagination
+            String countQuery = "SELECT COUNT(*) FROM users u JOIN service_provider_details spd ON u.user_id = spd.provider_id WHERE u.user_type = 'SERVICEPROVIDER'";
+            if (status != null && !status.isEmpty()) {
+                countQuery += " AND spd.approval_status = ?";
+            }
+
+            Integer totalItems = (status != null && !status.isEmpty()) ?
+                    jdbcTemplate.queryForObject(countQuery, Integer.class, status) :
+                    jdbcTemplate.queryForObject(countQuery, Integer.class);
+
+            int totalPages = (int) Math.ceil((double) (totalItems != null ? totalItems : 0) / size);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", providers);
+            response.put("totalItems", totalItems != null ? totalItems : 0);
+            response.put("totalPages", totalPages);
+            response.put("currentPage", page);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error fetching service provider applications: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Update service provider approval status
+     */
+    @PostMapping("/service-providers/update-status")
+    public ResponseEntity<?> updateProviderStatus(
+            @RequestBody Map<String, Object> request) {
+
+        try {
+            Integer providerId = (Integer) request.get("providerId");
+            String status = (String) request.get("status");
+            String remarks = (String) request.get("remarks");
+
+            if (providerId == null || status == null || !status.matches("APPROVED|REJECTED")) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Invalid request parameters"));
+            }
+
+            // Get current admin ID
+            Integer adminId = jdbcTemplate.queryForObject(
+                    "SELECT admin_id FROM admins LIMIT 1", Integer.class);
+
+            if (adminId == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Admin not found"));
+            }
+
+            // Update service_provider_details table
+            jdbcTemplate.update(
+                    "UPDATE service_provider_details SET approval_status = ? WHERE provider_id = ?",
+                    status, providerId
+            );
+
+            // Insert into service_provider_approval table
+            jdbcTemplate.update(
+                    "INSERT INTO service_provider_approval (provider_id, admin_id, status, remarks) VALUES (?, ?, ?, ?)",
+                    providerId, adminId, status, remarks
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Service provider status updated to " + status,
+                    "providerId", providerId,
+                    "status", status
+            ));
+
+        } catch (Exception e) {
+            System.err.println("Error updating service provider status: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }

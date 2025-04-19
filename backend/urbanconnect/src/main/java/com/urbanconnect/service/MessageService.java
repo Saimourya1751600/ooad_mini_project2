@@ -22,16 +22,19 @@ public class MessageService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private MessageFactory messageFactory;
+
     /**
      * Save a new message
      */
     public MessageDTO saveMessage(MessageDTO messageDTO) {
-        Message message = new Message();
-        message.setSenderId(messageDTO.getSenderId());
-        message.setReceiverId(messageDTO.getReceiverId());
-        message.setBookingId(messageDTO.getBookingId());
-        message.setMessage(messageDTO.getMessage());
-        message.setSentAt(LocalDateTime.now());
+        Message message = messageFactory.createMessage(
+                messageDTO.getSenderId(),
+                messageDTO.getReceiverId(),
+                messageDTO.getBookingId(),
+                messageDTO.getMessage()
+        );
 
         Message savedMessage = messageRepository.save(message);
 
@@ -39,16 +42,15 @@ public class MessageService {
         User sender = userRepository.findById(savedMessage.getSenderId()).orElse(null);
         String senderName = (sender != null) ? sender.getName() : "Unknown";
 
-        MessageDTO responseDTO = new MessageDTO();
-        responseDTO.setMessageId(savedMessage.getMessageId());
-        responseDTO.setSenderId(savedMessage.getSenderId());
-        responseDTO.setReceiverId(savedMessage.getReceiverId());
-        responseDTO.setBookingId(savedMessage.getBookingId());
-        responseDTO.setMessage(savedMessage.getMessage());
-        responseDTO.setSentAt(savedMessage.getSentAt());
-        responseDTO.setSenderName(senderName);
-
-        return responseDTO;
+        return messageFactory.createMessageDTO(
+                savedMessage.getMessageId(),
+                savedMessage.getSenderId(),
+                savedMessage.getReceiverId(),
+                savedMessage.getBookingId(),
+                savedMessage.getMessage(),
+                savedMessage.getSentAt(),
+                senderName
+        );
     }
 
     /**
@@ -63,15 +65,15 @@ public class MessageService {
             User sender = userRepository.findById(message.getSenderId()).orElse(null);
             String senderName = (sender != null) ? sender.getName() : "Unknown";
 
-            MessageDTO dto = new MessageDTO();
-            dto.setMessageId(message.getMessageId());
-            dto.setSenderId(message.getSenderId());
-            dto.setReceiverId(message.getReceiverId());
-            dto.setBookingId(message.getBookingId());
-            dto.setMessage(message.getMessage());
-            dto.setSentAt(message.getSentAt());
-            dto.setSenderName(senderName);
-
+            MessageDTO dto = messageFactory.createMessageDTO(
+                    message.getMessageId(),
+                    message.getSenderId(),
+                    message.getReceiverId(),
+                    message.getBookingId(),
+                    message.getMessage(),
+                    message.getSentAt(),
+                    senderName
+            );
             messageDTOs.add(dto);
         }
 
@@ -90,15 +92,15 @@ public class MessageService {
             User sender = userRepository.findById(message.getSenderId()).orElse(null);
             String senderName = (sender != null) ? sender.getName() : "Unknown";
 
-            MessageDTO dto = new MessageDTO();
-            dto.setMessageId(message.getMessageId());
-            dto.setSenderId(message.getSenderId());
-            dto.setReceiverId(message.getReceiverId());
-            dto.setBookingId(message.getBookingId());
-            dto.setMessage(message.getMessage());
-            dto.setSentAt(message.getSentAt());
-            dto.setSenderName(senderName);
-
+            MessageDTO dto = messageFactory.createMessageDTO(
+                    message.getMessageId(),
+                    message.getSenderId(),
+                    message.getReceiverId(),
+                    message.getBookingId(),
+                    message.getMessage(),
+                    message.getSentAt(),
+                    senderName
+            );
             messageDTOs.add(dto);
         }
 
