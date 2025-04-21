@@ -56,7 +56,10 @@ This solution is built using modern web technologies including **ReactJS**, **Sp
 
 ## 📷 Screenshots
 
-> *You can add screenshots of your UI here for customer view, service provider dashboard, and admin panel.*
+### Customer Dashboard
+![Customer Dashboard](Images/ss3.png) 
+### Admin Panel
+![Admin Panel](Images/ss1.png)
 
 
 ## 👥 Contributors
