@@ -64,13 +64,13 @@ This solution is built using modern web technologies including **ReactJS**, **Sp
 
 ## 👥 Contributors
 
-- SAI MOURYA N DODDAMANI
+- [SAI MOURYA N DODDAMANI](https://github.com/Saimourya1751600)
 
-- SANATH SHETTY
+- [SANATH SHETTY](https://github.com/sanathshetty777)
 
-- SHASHANK R PATIL
+- [SHASHANK R PATIL](https://github.com/shashankpatil92003)
 
-- VIDHAAN VISWAS
+- [VIDHAAN VISWAS](https://github.com/vidhaanviswas)
 
 Special thanks to our OOAD course instructors.
 
