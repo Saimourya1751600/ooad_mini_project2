@@ -2,10 +2,6 @@
 
 Urban-Connect is a SaaS-based web application designed to streamline the process of booking and managing home services in urban areas. The platform connects customers with verified service providers, enabling seamless service discovery, booking, communication, and issue resolution — all under one roof.
 
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Contributors](https://img.shields.io/badge/Contributors-4-blue)
-![Tech Stack](https://img.shields.io/badge/Tech-ReactJS%20%7C%20SpringBoot%20%7C%20MySQL-yellow)
-
 ## 🚀 Project Overview
 
 In the dynamic and fast-paced urban environment, the demand for reliable and efficient home services is constantly growing. Urban residents frequently require a wide variety of household services such as plumbing, electrical maintenance, cleaning, pest control, appliance repair, and more. However, accessing these services in a structured, trustworthy, and convenient manner remains a major challenge. Traditional methods of finding service professionals through word-of-mouth, classifieds, or fragmented online platforms are often inefficient, unreliable, and time-consuming. Customers face difficulties in verifying the credibility of service providers, comparing service costs, and scheduling appointments according to their convenience.
@@ -84,3 +80,6 @@ Special thanks to our OOAD course instructors.
 ## 📜 License
 This project is licensed under the MIT License.
 
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Contributors](https://img.shields.io/badge/Contributors-4-blue)
+![Tech Stack](https://img.shields.io/badge/Tech-ReactJS%20%7C%20SpringBoot%20%7C%20MySQL-yellow)
