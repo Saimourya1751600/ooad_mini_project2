@@ -1,0 +1,40 @@
+.not-found {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  .lottie-animation {
+    width: 650px;
+    height: 650px;
+  }
+  
+  h1 {
+    font-size: 3rem;
+    color: #ff4b4b;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  .home-link {
+    margin-top: 20px;
+    text-decoration: none;
+    color: #007bff;
+    font-size: 1.1rem;
+    border: 2px solid #007bff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .home-link:hover {
+    background-color: #007bff;
+    color: white;
+  }
+  
